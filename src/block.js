@@ -64,7 +64,7 @@ class Block {
                 resolve(parsedJsonData);
                 return
             } 
-            reject(Error("No Data Found"))
+            reject(Error("no_data_found"))
         });
     }
 
