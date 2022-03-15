@@ -74,11 +74,13 @@ class Blockchain {
             self.chain.push(block);
             self.height += 1;
 
-            if (self.chain[self.height] == block) {
-                resolve(block);
-                return
-            }
-            reject(Error("add_block_error"));
+            self.validateChain()
+                .then(message => {
+                    resolve(block);
+                }).catch((error) => {
+                    self.chain.pop();
+                    reject(Error("add_block_error"));
+                });
         });
     }
 
@@ -199,32 +201,23 @@ class Blockchain {
      */
     validateChain() {
         let self = this;
-        let errors = [];
         return new Promise(async (resolve, reject) => {
             if (self.height == 0) {
-                reject(Error("invalid_chain"))
+                resolve("new block chain")
             }
             for (var i = 1; i <= self.height; i++) {
                 let valid = await self.chain[i].validate();
                 if (!valid) {
-                    errors.push("invalid_chain");
-                    break;
+                    reject(Error("invalid_chain"));
+                    return;
                 }
                 if (self.chain[i].previousBlockHash != self.chain[i - 1].hash) {
-                    errors.push("invalid_previous_block_hash");
-                    break;
+                    reject(Error("invalid_previous_block_hash"));
+                    return;
                 }
             }
-            if (errors.length == 0) {
-                resolve("valid_chain")
-                return
-            }
-            resolve(errors)
-        }).then(successfulValidation => {
-            console.log(successfulValidation);
-        }).catch(unsuccessfulValidation => {
-            console.log(unsuccessfulValidation);
-        });
+            resolve("valid_chain")
+        })
     }
 
 }
