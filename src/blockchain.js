@@ -121,7 +121,7 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             let time = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
-            const fiveMinutes = 300000
+            const fiveMinutes = 5 * 60
             if (time > currentTime - fiveMinutes) {
                 if (bitcoinMessage.verify(message, address, signature)) {
                     let block = new BlockClass.Block({ "owner": address, "star": star });
@@ -145,12 +145,8 @@ class Blockchain {
     getBlockByHash(hash) {
         let self = this;
         return new Promise((resolve, reject) => {
-            for (let i = 0; i < self.chain.length; i++) {
-                if (self.chain[i].hash == hash) {
-                    resolve(self.chain[i])
-                    return
-                }
-            }
+            let block = self.chain.find(p => p.hash === hash);
+            resolve(block)
         });
     }
 
@@ -162,12 +158,8 @@ class Blockchain {
     getBlockByHeight(height) {
         let self = this;
         return new Promise((resolve, reject) => {
-            for (let i = 0; i < self.chain.length; i++) {
-                if (self.chain[i].height == height) {
-                    resolve(self.chain[i])
-                    return
-                }
-            }
+            let block = self.chain.find(p => p.height === height);
+            resolve(block)
         });
     }
 
